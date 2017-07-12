@@ -4,7 +4,10 @@ import org.schemaspy.model.TableColumn;
 import org.schemaspy.util.Markdown;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -109,6 +112,11 @@ public class MustacheTableColumn {
         return comments;
     }
 
+    public Map<String, String> getAttributes()
+    {
+    	return getColumn().getAttributes();
+    }
+    
     private void prepareRelatives(List<MustacheTableColumnRelatives> relatives, boolean dumpParents) {
         Set<TableColumn> columns = dumpParents ? column.getParents() : column.getChildren();
 
@@ -120,5 +128,7 @@ public class MustacheTableColumn {
             relatives.add(relative);
         }
     }
+    
+    
 }
 

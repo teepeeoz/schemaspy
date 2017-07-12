@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 
 import org.schemaspy.Config;
 import org.schemaspy.model.xml.SchemaMeta;
+import org.schemaspy.model.xml.SchemaMetaModel;
 import org.schemaspy.model.xml.TableMeta;
 import org.schemaspy.model.Schema;
 import org.schemaspy.model.Catalog;
@@ -61,14 +62,14 @@ public class Database {
     private final Map<String, Table> locals = new CombinedMap(tables, views);
     private final Map<String, Routine> routines = new CaseInsensitiveMap<Routine>();
     private final DatabaseMetaData meta;
-    private final SchemaMeta schemaMeta;
+    private final SchemaMetaModel schemaMeta;
     private final String connectTime = new SimpleDateFormat("EEE MMM dd HH:mm z yyyy").format(new Date());
     private Set<String> sqlKeywords;
     private Pattern invalidIdentifierPattern;
     private final Logger logger = Logger.getLogger(getClass().getName());
 	private final ProgressListener listener;
 
-    public Database(Config config, DatabaseMetaData meta, String name, String catalog, String schema, SchemaMeta schemaMeta,
+    public Database(Config config, DatabaseMetaData meta, String name, String catalog, String schema, SchemaMetaModel schemaMeta,
     				ProgressListener progressListener) throws SQLException, MissingResourceException {
         this.config = config;
         this.meta = meta;
@@ -154,7 +155,7 @@ public class Database {
         return meta;
     }
 
-    public SchemaMeta getSchemaMeta() {
+    public SchemaMetaModel getSchemaMeta() {
         return schemaMeta;
     }
 

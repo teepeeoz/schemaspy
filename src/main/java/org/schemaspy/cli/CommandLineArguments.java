@@ -68,6 +68,15 @@ public class CommandLineArguments {
 
     @Parameter(
             names = {
+                    "-mmp", "-metamodelPath",
+                    "schemaspy.mmp", "schemaspy.metamodelPath"
+            },
+            descriptionKey = "metaModelPath"
+    )
+    private String metaModelPath;
+
+    @Parameter(
+            names = {
                     "-u", "--user", "user",
                     "schemaspy.u", "schemaspy.user"},
             descriptionKey = "user",
@@ -162,6 +171,10 @@ public class CommandLineArguments {
 
     public String getDatabaseName() {
         return databaseName;
+    }
+
+    public String getMetaModelPath() {
+        return metaModelPath;
     }
 
     public Integer getPort() {

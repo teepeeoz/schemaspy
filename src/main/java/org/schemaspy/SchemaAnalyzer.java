@@ -48,6 +48,7 @@ import org.schemaspy.model.ProgressListener;
 import org.schemaspy.model.Table;
 import org.schemaspy.model.TableColumn;
 import org.schemaspy.model.xml.SchemaMeta;
+import org.schemaspy.model.xml.SchemaMetaModel;
 import org.schemaspy.service.DatabaseService;
 import org.schemaspy.service.SqlService;
 import org.schemaspy.util.*;
@@ -187,6 +188,7 @@ public class SchemaAnalyzer {
             String dbName = config.getDb();
 
             String catalog = commandLineArguments.getCatalog();
+            String metaModelExtensionClassName = commandLineArguments.getMetaModelPath();
 
             DatabaseMetaData meta = sqlService.connect(config);
 
@@ -198,8 +200,8 @@ public class SchemaAnalyzer {
             	schema = meta.getConnection().getSchema();
             if(catalog == null)
             	catalog = meta.getConnection().getCatalog();
-
-            SchemaMeta schemaMeta = config.getMeta() == null ? null : new SchemaMeta(config.getMeta(), dbName, schema);
+            
+            SchemaMetaModel schemaMeta = config.getMeta() == null ? null : new SchemaMetaModel(config.getMeta(), metaModelExtensionClassName, dbName, schema);
             if (config.isHtmlGenerationEnabled()) {
                 new File(outputDir, "tables").mkdirs();
                 new File(outputDir, "diagrams/summary").mkdirs();

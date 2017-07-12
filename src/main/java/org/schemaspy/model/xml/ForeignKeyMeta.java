@@ -45,9 +45,9 @@ public class ForeignKeyMeta {
         if (node == null)
             throw new IllegalStateException("XML foreignKey definition requires 'column' attribute");
         columnName = node.getNodeValue();
-        node = attribs.getNamedItem("remoteSchema");
+        node = attribs.getNamedItem(MetaModelKeywords.REMOTE_SCHEMA);
         remoteSchema = node == null ? null : node.getNodeValue();
-        node = attribs.getNamedItem("remoteCatalog");
+        node = attribs.getNamedItem(MetaModelKeywords.REMOTE_CATALOG);
         remoteCatalog = node == null ? null : node.getNodeValue();
 
         logger.finer("Found XML FK metadata for " + tableName + "." + columnName +

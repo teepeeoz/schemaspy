@@ -28,6 +28,7 @@ import org.schemaspy.util.Markdown;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * The page that contains the details of a specific table or view
@@ -73,16 +74,19 @@ public class HtmlTablePage extends HtmlFormatter {
         Set<TableColumn> primaries = new HashSet<>(table.getPrimaryColumns());
         Set<TableColumn> indexes = new HashSet<>();
         Set<MustacheTableColumn> tableColumns = new LinkedHashSet<>();
+        //Set<Set<Entry<String, String>>> tableColumns = new LinkedHashSet<>();
         Set<MustacheTableIndex> indexedColumns = new LinkedHashSet<>();
         Set<TableIndex> sortIndexes = new TreeSet<>(table.getIndexes()); // sort primary keys first
 
         for (TableIndex index : sortIndexes) {
             indexes.addAll(index.getColumns());
             indexedColumns.add(new MustacheTableIndex(index));
-        }
+        } 
 
         for (TableColumn column : table.getColumns()) {
             tableColumns.add(new MustacheTableColumn(column, indexes, getPathToRoot()));
+        	//MustacheTableColumn mtc = new MustacheTableColumn(column, indexes, getPathToRoot());
+            //tableColumns.add(mtc.getAttributes().entrySet());
         }
 
         HashMap<String, Object> scopes = new HashMap<>();

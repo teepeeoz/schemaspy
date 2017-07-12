@@ -18,6 +18,8 @@
  */
 package org.schemaspy.model;
 
+import org.schemaspy.model.xml.MetaModelKeywords;
+import org.schemaspy.model.xml.ModelExtension;
 import org.schemaspy.model.xml.TableColumnMeta;
 import org.schemaspy.model.xml.TableMeta;
 import org.schemaspy.util.CaseInsensitiveMap;
@@ -58,6 +60,7 @@ public class Table implements Comparable<Table> {
     private String comments;
     private int maxChildren;
     private int maxParents;
+    private Map<String, String> metaData;
     private final static Logger logger = Logger.getLogger(Table.class.getName());
     private final static boolean fineEnabled = logger.isLoggable(Level.FINE);
     private final static boolean finerEnabled = logger.isLoggable(Level.FINER);
@@ -316,6 +319,17 @@ public class Table implements Comparable<Table> {
      */
     public CaseInsensitiveMap<TableColumn> getColumnsMap() {
         return columns;
+    }
+    
+    
+    public Map<String, String> getMetadataMap()
+    {
+    	return metaData;
+    }
+    
+    public void setMetadataMap( Map<String, String> metadataMap)
+    {
+    	metaData = metadataMap;
     }
 
     /**
@@ -661,6 +675,35 @@ public class Table implements Comparable<Table> {
         }
     }
 
+
+    /**
+     * Update the table with list of key value pairs in the Model Extension
+     *
+     * @param modelExtension
+     */
+    public void update(ModelExtension modelExtension) {
+    	
+    	if (modelExtension == null)
+    		return;
+    	
+        String newComments = modelExtension.getValue(getName(), null, MetaModelKeywords.COMMENTS);
+        if (newComments != null) {
+            comments = newComments;
+        }
+
+        for (String columnName : modelExtension.getColumns(getName()))
+        {
+            TableColumn col = getColumn(columnName);
+            if (col == null) {
+                TableColumn column = new TableColumn(this);
+                column.setName(columnName);
+                columns.put(column.getName(), column);
+            }        	
+            col.update(modelExtension);
+        }
+    }
+
+    
     @Override
     public String toString() {
         return getName();

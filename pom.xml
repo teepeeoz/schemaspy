@@ -34,13 +34,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
         <spring-boot.version>1.5.3.RELEASE</spring-boot.version>
-
         <java.version>1.8</java.version>
     </properties>
     <issueManagement>
-        <url>https://github.com/schemaspy/schemaspy/issues</url>
+        <url>https://github.com/teepeeoz/schemaspy/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
     <licenses>
@@ -51,9 +49,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/schemaspy/schemaspy</url>
-        <connection>scm:git:git://github.com/schemaspy/schemaspy.git</connection>
-        <developerConnection>scm:git:git@github.com:schemaspy/schemaspy.git</developerConnection>
+        <url>https://github.com/teepeeoz/schemaspy</url>
+        <connection>scm:git:git://github.com/teepeeoz/schemaspy.git</connection>
+        <developerConnection>scm:git:git@github.com:teepeeoz/schemaspy.git</developerConnection>
     </scm>
     <developers>
         <developer>
@@ -273,7 +271,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <doCheck>true</doCheck>
+                    <doCheck>false</doCheck>
                     <format>${project.version}.{0,number} {1,date,yyyy-MM-dd HH:mm:ss}</format>
                     <items>
                         <item>buildNumber</item>

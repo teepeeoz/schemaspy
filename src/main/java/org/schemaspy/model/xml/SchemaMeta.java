@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -47,7 +48,7 @@ import org.xml.sax.SAXException;
  *
  * @author John Currier
  */
-public class SchemaMeta {
+public class SchemaMeta implements ModelExtension {
     private final List<TableMeta> tables = new ArrayList<TableMeta>();
     private final String comments;
     private final File metaFile;
@@ -78,7 +79,7 @@ public class SchemaMeta {
 
         Document doc = parse(metaFile);
 
-        NodeList commentsNodes = doc.getElementsByTagName("comments");
+        NodeList commentsNodes = doc.getElementsByTagName(MetaModelKeywords.COMMENTS);
         if (commentsNodes == null)
             commentsNodes = doc.getElementsByTagName("remarks");
         if (commentsNodes != null && commentsNodes.getLength() > 0)
@@ -109,9 +110,89 @@ public class SchemaMeta {
         return metaFile;
     }
 
-    public List<TableMeta> getTables() {
-        return tables;
+    public List<String> getTables() {
+    	
+    	List<String> list = new ArrayList<String>();
+    	for (TableMeta tableMeta : tables)
+    	{
+    		list.add(tableMeta.getName());
+    	}
+    	
+        return list;
     }
+
+	@Override
+	public void loadModelExtension(String xmlMeta, String dbName, String schema) throws InvalidConfigurationException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String getValue(String table, String column, String key) {
+		
+		if (key == null)
+			return null;
+
+		if (key.compareTo(MetaModelKeywords.COMMENTS) == 0)
+		{
+			if (table == null && column == null)
+				return getComments();
+			else
+			{
+				if (table != null && column == null)
+				{
+			    	for (TableMeta tableMeta : tables)
+			    	{
+			    		if (table.compareToIgnoreCase(tableMeta.getName()) == 0)
+			    		{
+			    			return tableMeta.getComments();
+			    		}
+			    	}					
+				}
+				else
+				{
+			    	for (TableMeta tableMeta : tables)
+			    	{
+			    		if (table.compareToIgnoreCase(tableMeta.getName()) == 0)
+			    		{
+			    			for (TableColumnMeta col : tableMeta.getColumns()) 
+			    			{
+					    		if (column.compareToIgnoreCase(col.getName()) == 0)
+					    			return col.getComments();
+			    			}
+			    		}
+			    	}
+					
+				}
+			}
+		}
+		
+		return null;
+	}
+
+	@Override
+	public Map<String, String> get(String table, String column) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<String> getColumns(String table) {
+    	
+    	for (TableMeta tableMeta : tables)
+    	{
+    		if (table.compareToIgnoreCase(tableMeta.getName()) == 0)
+    		{
+    	    	List<String> list = new ArrayList<String>();
+    			for (TableColumnMeta col : tableMeta.getColumns()) 
+    	    		list.add(col.getName());    			
+    			return list;
+    		}
+    	}
+    	
+        return null;
+	}
+	
 
     private void validate(Document document) throws SAXException, IOException {
         // create a SchemaFactory capable of understanding WXS schemas
@@ -159,4 +240,5 @@ public class SchemaMeta {
 
         return doc;
     }
+
 }

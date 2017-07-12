@@ -18,6 +18,8 @@
  */
 package org.schemaspy.model;
 
+import org.schemaspy.model.xml.MetaModelKeywords;
+import org.schemaspy.model.xml.ModelExtension;
 import org.schemaspy.model.xml.TableColumnMeta;
 
 import java.sql.DatabaseMetaData;
@@ -25,6 +27,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -52,6 +55,7 @@ public class TableColumn {
     private boolean allowImpliedChildren = true;
     private boolean isExcluded = false;
     private boolean isAllExcluded = false;
+    private Map<String, String> metaData;
     private static final Logger logger = Logger.getLogger(TableColumn.class.getName());
     private static final boolean finerEnabled = logger.isLoggable(Level.FINER);
 
@@ -514,6 +518,66 @@ public class TableColumn {
         isAllExcluded |= colMeta.isAllExcluded();
     }
 
+
+    /**
+     * Update the state of this column with the supplied {@link ModelExtension}.
+     * Intended to be used with instances created by {@link #update(Table, TableColumnMeta)}.
+     *
+     * @param modelExtension
+     */
+    public void update(ModelExtension modelExtension) {
+    	
+    	if (modelExtension == null)
+    		return;
+    	
+        String newComments = modelExtension.getValue(table.getName(), getName(), MetaModelKeywords.COMMENTS);
+        if (newComments != null)
+            setComments(newComments);
+
+        boolean primary = modelExtension.getValue(table.getName(), getName(), "isPrimary") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isPrimary"));        
+        if (!isPrimary() && primary) {
+            table.setPrimaryColumn(this);
+        }
+
+        allowImpliedParents  = !(modelExtension.getValue(table.getName(), getName(), "isImpliedParentsDisabled") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isImpliedParentsDisabled")));
+        allowImpliedChildren = !(modelExtension.getValue(table.getName(), getName(), "isImpliedChildrenDisabled") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isImpliedChildrenDisabled")));
+        isExcluded |= modelExtension.getValue(table.getName(), getName(), "isExcluded") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isExcluded"));
+        isAllExcluded |= modelExtension.getValue(table.getName(), getName(), "isAllExcluded") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isAllExcluded"));
+
+        setMetadataMap(modelExtension.get(getTable().getName(), getName()));
+    }
+
+    public Map<String, String> getMetadataMap()
+    {
+    	return metaData;
+    }
+    
+    public void setMetadataMap( Map<String, String> metaDataMap)
+    {
+    	metaData = metaDataMap;
+    }
+
+    public Set<Entry<String, String>> getMetadataSet()
+    {
+    	return metaData.entrySet();
+    }
+
+
+    public Map<String, String> getAttributes()
+    {
+    	Map<String, String> map = new HashMap<String, String>();
+    	map.put("name", getName());
+    	map.put("typeName", getTypeName());
+    	map.put("type", getType().toString());
+    	map.put("length", Integer.toString(getLength()));
+    	
+    	if (getMetadataMap() != null)
+    		map.putAll(getMetadataMap());
+    	
+    	return map;
+    }
+
+    
     /**
      * Returns the name of this column.
      */

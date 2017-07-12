@@ -56,7 +56,7 @@ public class TableColumnMeta {
 
         name = attribs.getNamedItem("name").getNodeValue();
 
-        Node node = attribs.getNamedItem("comments");
+        Node node = attribs.getNamedItem(MetaModelKeywords.COMMENTS);
         if (node == null)
             node = attribs.getNamedItem("remarks");
         if (node != null) {

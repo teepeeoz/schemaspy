@@ -83,6 +83,7 @@ public final class Config {
     private Integer maxDbThreads;
     private Integer maxDetailedTables;
     private String driverPath;
+    private String metaModelPath;
     private String css;
     private String charset;
     private String font;
@@ -556,6 +557,18 @@ public final class Config {
             driverPath = pullParam("-cp");
 
         return driverPath;
+    }
+
+
+    public void setMetaModelPath(String metaModelPath) {
+        this.metaModelPath = metaModelPath;
+    }
+
+    public String getMetaModelPath() {
+        if (metaModelPath == null)
+        	metaModelPath = pullParam("-mmp");
+
+        return metaModelPath;
     }
 
     /**

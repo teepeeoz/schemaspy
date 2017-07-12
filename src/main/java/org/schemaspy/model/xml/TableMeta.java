@@ -45,7 +45,7 @@ public class TableMeta {
 
         name = attribs.getNamedItem("name").getNodeValue();
 
-        Node node = attribs.getNamedItem("comments");
+        Node node = attribs.getNamedItem(MetaModelKeywords.COMMENTS);
         if (node == null)
             node = attribs.getNamedItem("remarks");
         if (node != null) {
@@ -55,10 +55,10 @@ public class TableMeta {
             comments = null;
         }
 
-        node = attribs.getNamedItem("remoteSchema");
+        node = attribs.getNamedItem(MetaModelKeywords.REMOTE_SCHEMA);
         remoteSchema = node == null ? null : node.getNodeValue().trim();
 
-        node = attribs.getNamedItem("remoteCatalog");
+        node = attribs.getNamedItem(MetaModelKeywords.REMOTE_CATALOG);
         remoteCatalog = node == null ? null : node.getNodeValue().trim();
 
         logger.fine("Found XML table metadata for " + name +
