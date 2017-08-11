@@ -74,7 +74,6 @@ public class HtmlTablePage extends HtmlFormatter {
         Set<TableColumn> primaries = new HashSet<>(table.getPrimaryColumns());
         Set<TableColumn> indexes = new HashSet<>();
         Set<MustacheTableColumn> tableColumns = new LinkedHashSet<>();
-        //Set<Set<Entry<String, String>>> tableColumns = new LinkedHashSet<>();
         Set<MustacheTableIndex> indexedColumns = new LinkedHashSet<>();
         Set<TableIndex> sortIndexes = new TreeSet<>(table.getIndexes()); // sort primary keys first
 
@@ -85,13 +84,12 @@ public class HtmlTablePage extends HtmlFormatter {
 
         for (TableColumn column : table.getColumns()) {
             tableColumns.add(new MustacheTableColumn(column, indexes, getPathToRoot()));
-        	//MustacheTableColumn mtc = new MustacheTableColumn(column, indexes, getPathToRoot());
-            //tableColumns.add(mtc.getAttributes().entrySet());
         }
 
         HashMap<String, Object> scopes = new HashMap<>();
         scopes.put("table", table);
         scopes.put("comments", Markdown.toHtml(table.getComments(), getPathToRoot()));
+        scopes.put("attributes", table.getAttributes());
         scopes.put("primaries", primaries);
         scopes.put("columns", tableColumns);
         scopes.put("indexes", indexedColumns);

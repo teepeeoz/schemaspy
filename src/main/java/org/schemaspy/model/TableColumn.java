@@ -516,6 +516,9 @@ public class TableColumn {
         allowImpliedChildren = !colMeta.isImpliedChildrenDisabled();
         isExcluded |= colMeta.isExcluded();
         isAllExcluded |= colMeta.isAllExcluded();
+        
+        length = colMeta.getSize() < 1 ? length : colMeta.getSize();
+        //type = colMeta.getType() == null ? type : colMeta.getType();
     }
 
 
@@ -530,21 +533,21 @@ public class TableColumn {
     	if (modelExtension == null)
     		return;
     	
-        String newComments = modelExtension.getValue(table.getName(), getName(), MetaModelKeywords.COMMENTS);
+        String newComments = modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), MetaModelKeywords.COMMENTS);
         if (newComments != null)
             setComments(newComments);
 
-        boolean primary = modelExtension.getValue(table.getName(), getName(), "isPrimary") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isPrimary"));        
+        boolean primary = modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isPrimary") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isPrimary"));        
         if (!isPrimary() && primary) {
             table.setPrimaryColumn(this);
         }
 
-        allowImpliedParents  = !(modelExtension.getValue(table.getName(), getName(), "isImpliedParentsDisabled") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isImpliedParentsDisabled")));
-        allowImpliedChildren = !(modelExtension.getValue(table.getName(), getName(), "isImpliedChildrenDisabled") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isImpliedChildrenDisabled")));
-        isExcluded |= modelExtension.getValue(table.getName(), getName(), "isExcluded") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isExcluded"));
-        isAllExcluded |= modelExtension.getValue(table.getName(), getName(), "isAllExcluded") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getName(), getName(), "isAllExcluded"));
+        allowImpliedParents  = !(modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isImpliedParentsDisabled") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isImpliedParentsDisabled")));
+        allowImpliedChildren = !(modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isImpliedChildrenDisabled") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isImpliedChildrenDisabled")));
+        isExcluded |= modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isExcluded") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isExcluded"));
+        isAllExcluded |= modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isAllExcluded") == null ? false : Boolean.parseBoolean(modelExtension.getValue(table.getSchema().getName(), table.getName(), getName(), "isAllExcluded"));
 
-        setMetadataMap(modelExtension.get(getTable().getName(), getName()));
+        setMetadataMap(modelExtension.get(table.getSchema().getName(), getTable().getName(), getName()));
     }
 
     public Map<String, String> getMetadataMap()

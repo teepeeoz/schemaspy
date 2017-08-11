@@ -18,41 +18,97 @@
  */
 package org.schemaspy.model;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import org.schemaspy.model.xml.MetaModelKeywords;
+import org.schemaspy.model.xml.ModelExtension;
 
 public final class Schema implements Comparable<Schema>{
+	
 	public String name;
-	public String comment =null;
+	public String comments = null;
+    private Map<String, String> metaData;
+    private final static Logger logger = Logger.getLogger(Schema.class.getName());
     
 	public Schema(String name, String comment) {
 		super();
 		 if (name == null)
 	            throw new IllegalArgumentException("Schema name can't be null");
 		this.name = name;
-		this.comment = comment;
+		setComments(comment);
 	}
+
 	public Schema(String name) {
 		super();
-		 if (name == null)
-	            throw new IllegalArgumentException("Schema name can't be null");
+		if (name == null)
+			throw new IllegalArgumentException("Schema name can't be null");
 		this.name = name;
 	}
 	
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
 	
-	public String getComment() {
-		return comment;
+	public String getComments() {
+		return comments;
 	}
-	public void setComment(String comment) {
-		this.comment = comment;
+
+	public void setComments(String comments) {
+		this.comments = comments;
 	}	
+	
+    
+    public Map<String, String> getMetadataMap()
+    {
+    	return metaData;
+    }
+    
+    public void setMetadataMap( Map<String, String> metadataMap)
+    {
+    	metaData = metadataMap;
+    }
+
+    public Map<String, String> getAttributes()
+    {
+    	
+    	Map<String, String> map = new HashMap<String, String>();    	
+    	if (getMetadataMap() != null)
+    		map.putAll(getMetadataMap());
+    	
+    	return map;
+    }
+
+
+    /**
+     * Update the table with list of key value pairs in the Model Extension
+     *
+     * @param modelExtension
+     */
+    public void update(ModelExtension modelExtension) {
+    	
+    	if (modelExtension == null)
+    		return;
+    	
+        setMetadataMap(modelExtension.get(getName(), null, null));
+        String newComments = modelExtension.getValue(getName(), null, null, MetaModelKeywords.COMMENTS);
+        if (newComments != null) {
+            setComments(newComments);
+        }
+
+    }
+
+
+	
     public int compareTo(Schema i) {
     	return this.getName().compareTo(i.getName());
     }
+    
     public String toString() {
         return name;
     }

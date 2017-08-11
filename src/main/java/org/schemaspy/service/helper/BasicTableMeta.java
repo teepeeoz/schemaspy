@@ -1,5 +1,7 @@
 package org.schemaspy.service.helper;
 
+import org.schemaspy.model.Schema;
+
 /**
  * Created by rkasa on 2016-12-10.
  * Collection of fundamental table/view metadata
@@ -9,7 +11,7 @@ public class BasicTableMeta
     @SuppressWarnings("hiding")
     final String catalog;
     @SuppressWarnings("hiding")
-    final String schema;
+    final Schema schema;
     final String name;
     final String type;
     final String remarks;
@@ -27,7 +29,7 @@ public class BasicTableMeta
     public BasicTableMeta(String catalog, String schema, String name, String type, String remarks, String text, long numRows)
     {
         this.catalog = catalog;
-        this.schema = schema;
+        this.schema = new Schema(schema);
         this.name = name;
         this.type = type;
         this.remarks = remarks;
@@ -39,7 +41,7 @@ public class BasicTableMeta
         return catalog;
     }
 
-    public String getSchema() {
+    public Schema getSchema() {
         return schema;
     }
 

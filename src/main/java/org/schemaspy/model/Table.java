@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ import java.util.logging.Logger;
  */
 public class Table implements Comparable<Table> {
     private final String catalog;
-    private final String schema;
+    private final Schema schema;
     private final String name;
     private final String fullName;
     private final String container;
@@ -74,13 +75,13 @@ public class Table implements Comparable<Table> {
      * @param name
      * @param comments
      */
-    public Table(Database db, String catalog, String schema, String name, String comments) {
+    public Table(Database db, String catalog, Schema schema, String name, String comments) {
         this.db = db;
         this.catalog = catalog;
         this.schema = schema;
-        this.container = schema != null ? schema : catalog != null ? catalog : db.getName();
+        this.container = schema.getName() != null ? schema.getName() : catalog != null ? catalog : db.getName();
         this.name = name;
-        this.fullName = getFullName(db.getName(), catalog, schema, name);
+        this.fullName = getFullName(db.getName(), catalog, schema.getName(), name);
         if (fineEnabled)
             logger.fine("Creating " + getClass().getSimpleName() + " " + fullName);
 
@@ -164,7 +165,7 @@ public class Table implements Comparable<Table> {
      *
      * @return
      */
-    public String getSchema() {
+    public Schema getSchema() {
         return schema;
     }
 
@@ -330,6 +331,16 @@ public class Table implements Comparable<Table> {
     public void setMetadataMap( Map<String, String> metadataMap)
     {
     	metaData = metadataMap;
+    }
+
+    public Map<String, String> getAttributes()
+    {
+    	
+    	Map<String, String> map = new HashMap<String, String>();
+    	if (getMetadataMap() != null)
+    		map.putAll(getMetadataMap());
+    	
+    	return map;
     }
 
     /**
@@ -686,22 +697,28 @@ public class Table implements Comparable<Table> {
     	if (modelExtension == null)
     		return;
     	
-        String newComments = modelExtension.getValue(getName(), null, MetaModelKeywords.COMMENTS);
+        String newComments = modelExtension.getValue(getSchema().getName(), getName(), null, MetaModelKeywords.COMMENTS);
         if (newComments != null) {
             comments = newComments;
         }
 
-        for (String columnName : modelExtension.getColumns(getName()))
+        setMetadataMap(modelExtension.get(getSchema().getName(), getName(), null));
+
+        for (String columnName : modelExtension.getColumns(getSchema().getName(), getName()))
         {
             TableColumn col = getColumn(columnName);
             if (col == null) {
-                TableColumn column = new TableColumn(this);
-                column.setName(columnName);
-                columns.put(column.getName(), column);
-            }        	
-            col.update(modelExtension);
+            	// TODO
+                //TableColumn column = new TableColumn(this);
+                //column.setName(columnName);
+                //columns.put(column.getName(), column);
+            } 
+            else
+            	// TODO : Check
+            	col.update(modelExtension);
         }
     }
+
 
     
     @Override

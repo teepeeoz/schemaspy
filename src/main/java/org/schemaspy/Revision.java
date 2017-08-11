@@ -48,12 +48,19 @@ public class Revision {
 
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith("Implementation-Build:")) {
-                        rev = line.split(" ")[1];
+                    	// When running under IDE there is no version 
+                    	if (line.split(" ").length > 1)
+                    		rev = line.split(" ")[1];
                         break;
                     }
                 }
             }
-        } catch (IOException exc) {
+        } catch (IOException iox) {
+        } catch (Exception exc) {
+        	// Trap unexpected errors so that program continues 
+        	// and does not halt on a revision display error
+        	System.err.println("Error in initailize of Revision ");
+        	System.err.println("Error: " + exc);
         } finally {
             try {
                 if (reader != null) {

@@ -40,7 +40,7 @@ public class RemoteTable extends Table {
      * @param name
      * @param baseContainer
      */
-    public RemoteTable(Database db, String catalog, String schema, String name, String baseContainer) {
+    public RemoteTable(Database db, String catalog, Schema schema, String name, String baseContainer) {
         super(db, catalog, schema, name, null);
         this.baseContainer = baseContainer;
     }

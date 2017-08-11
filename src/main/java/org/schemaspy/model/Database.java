@@ -54,6 +54,7 @@ import org.springframework.context.expression.MapAccessor;
 public class Database {
     private final Config config;
     private final String databaseName ;
+    private String comments;
     private final Catalog catalog ;
     private final Schema schema;
     private final Map<String, Table> tables = new CaseInsensitiveMap<Table>();
@@ -76,7 +77,7 @@ public class Database {
         this.schemaMeta = schemaMeta;
         this.databaseName = name;
         this.catalog = new Catalog(catalog);
-        this.schema = new Schema(schema);
+       	this.schema = new Schema(schema);
         this.listener = progressListener;
     }
 
@@ -106,7 +107,15 @@ public class Database {
         return config.getDescription();
     }
 
-    public Collection<Table> getTables() {
+    public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
+	public Collection<Table> getTables() {
         return tables.values();
     }
 

@@ -110,7 +110,13 @@ public class SchemaMeta implements ModelExtension {
         return metaFile;
     }
 
-    public List<String> getTables() {
+	@Override
+	public List<String> getSchemas() {
+		
+		return null;
+	}
+
+    public List<String> getTables(String schema) {
     	
     	List<String> list = new ArrayList<String>();
     	for (TableMeta tableMeta : tables)
@@ -121,6 +127,24 @@ public class SchemaMeta implements ModelExtension {
         return list;
     }
 
+
+	@Override
+	public List<String> getColumns(String schema, String table) {
+    	
+    	List<String> list = new ArrayList<String>();
+    	for (TableMeta tableMeta : tables)
+    	{
+    		if (table.compareToIgnoreCase(tableMeta.getName()) == 0)
+    		{
+    			for (TableColumnMeta col : tableMeta.getColumns()) 
+    	    		list.add(col.getName());    			
+    			break;
+    		}
+    	}
+    	
+        return list;
+	}
+
 	@Override
 	public void loadModelExtension(String xmlMeta, String dbName, String schema) throws InvalidConfigurationException {
 		// TODO Auto-generated method stub
@@ -128,7 +152,7 @@ public class SchemaMeta implements ModelExtension {
 	}
 
 	@Override
-	public String getValue(String table, String column, String key) {
+	public String getValue(String schema, String table, String column, String key) {
 		
 		if (key == null)
 			return null;
@@ -171,26 +195,9 @@ public class SchemaMeta implements ModelExtension {
 	}
 
 	@Override
-	public Map<String, String> get(String table, String column) {
+	public Map<String, String> get(String schema, String table, String column) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public List<String> getColumns(String table) {
-    	
-    	for (TableMeta tableMeta : tables)
-    	{
-    		if (table.compareToIgnoreCase(tableMeta.getName()) == 0)
-    		{
-    	    	List<String> list = new ArrayList<String>();
-    			for (TableColumnMeta col : tableMeta.getColumns()) 
-    	    		list.add(col.getName());    			
-    			return list;
-    		}
-    	}
-    	
-        return null;
 	}
 	
 
@@ -240,5 +247,10 @@ public class SchemaMeta implements ModelExtension {
 
         return doc;
     }
+
+	@Override
+	public String version() {
+		return "Default SchemaSpy meta model hanmdler";
+	}
 
 }

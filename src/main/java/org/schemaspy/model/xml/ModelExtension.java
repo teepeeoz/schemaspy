@@ -27,14 +27,18 @@ import org.schemaspy.model.InvalidConfigurationException;
  *
  */
 public interface ModelExtension {
+	
+	String version();
 
-	public void loadModelExtension(String metaURI, String dbName, String schema) throws InvalidConfigurationException;
+	void loadModelExtension(String metaURI, String dbName, String schema) throws InvalidConfigurationException;
     
-    public String getValue(String table, String column, String key);
+    String getValue(String schema, String table, String column, String key) throws MetamodelFailure;
     
-    public Map<String, String> get(String table, String column);
+    Map<String, String> get(String schema, String table, String column) throws MetamodelFailure;
     
-    public List<String> getTables();
+    List<String> getSchemas() throws MetamodelFailure;
     
-    public List<String> getColumns(String table);
+    List<String> getTables(String schema) throws MetamodelFailure;
+    
+    List<String> getColumns(String schema, String table) throws MetamodelFailure;
 }

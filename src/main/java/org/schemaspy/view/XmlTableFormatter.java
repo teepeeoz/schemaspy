@@ -95,7 +95,7 @@ public class XmlTableFormatter {
         if (table.getId() != null)
             DOMUtil.appendAttribute(tableNode, "id", String.valueOf(table.getId()));
         DOMUtil.appendAttribute(tableNode, "catalog", table.getCatalog());
-        DOMUtil.appendAttribute(tableNode, "schema", table.getSchema());
+        DOMUtil.appendAttribute(tableNode, "schema", table.getSchema().getName());
         DOMUtil.appendAttribute(tableNode, "name", table.getName());
         if (table.getNumRows() >= 0)
             DOMUtil.appendAttribute(tableNode, "numRows", String.valueOf(table.getNumRows()));
@@ -158,7 +158,7 @@ public class XmlTableFormatter {
             ForeignKeyConstraint constraint = column.getChildConstraint(childColumn);
             DOMUtil.appendAttribute(childNode, "foreignKey", constraint.getName());
             DOMUtil.appendAttribute(childNode, "catalog", table.getCatalog());
-            DOMUtil.appendAttribute(childNode, "schema", table.getSchema());
+            DOMUtil.appendAttribute(childNode, "schema", table.getSchema().getName());
             DOMUtil.appendAttribute(childNode, "table", table.getName());
             DOMUtil.appendAttribute(childNode, "column", childColumn.getName());
             DOMUtil.appendAttribute(childNode, "implied", String.valueOf(constraint.isImplied()));
@@ -172,7 +172,7 @@ public class XmlTableFormatter {
             ForeignKeyConstraint constraint = column.getParentConstraint(parentColumn);
             DOMUtil.appendAttribute(parentNode, "foreignKey", constraint.getName());
             DOMUtil.appendAttribute(parentNode, "catalog", table.getCatalog());
-            DOMUtil.appendAttribute(parentNode, "schema", table.getSchema());
+            DOMUtil.appendAttribute(parentNode, "schema", table.getSchema().getName());
             DOMUtil.appendAttribute(parentNode, "table", table.getName());
             DOMUtil.appendAttribute(parentNode, "column", parentColumn.getName());
             DOMUtil.appendAttribute(parentNode, "implied", String.valueOf(constraint.isImplied()));

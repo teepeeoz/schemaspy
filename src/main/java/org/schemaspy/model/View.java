@@ -33,7 +33,7 @@ public class View extends Table {
      * @param remarks
      * @param viewSql
      */
-    public View(Database db, String catalog, String schema,
+    public View(Database db, String catalog, Schema schema,
                 String name, String remarks, String viewSql) {
         super(db, catalog, schema, name, remarks);
 

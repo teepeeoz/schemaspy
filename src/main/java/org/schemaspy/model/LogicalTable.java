@@ -25,7 +25,7 @@ package org.schemaspy.model;
  * @author John Currier
  */
 public class LogicalTable extends Table {
-    public LogicalTable(Database db, String catalog, String schema, String name, String comments) {
+    public LogicalTable(Database db, String catalog, Schema schema, String name, String comments) {
         super(db, catalog, schema, name, comments);
     }
 

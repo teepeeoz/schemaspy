@@ -6,6 +6,7 @@ import org.schemaspy.model.LogicalTable;
 import org.schemaspy.model.ProgressListener;
 import org.schemaspy.model.Routine;
 import org.schemaspy.model.RoutineParameter;
+import org.schemaspy.model.Schema;
 import org.schemaspy.model.Table;
 import org.schemaspy.model.TableColumn;
 import org.schemaspy.model.TableIndex;
@@ -115,7 +116,7 @@ public class DatabaseService {
 				stmt = sqlService.prepareStatement(sql, db, null);
 				rs = stmt.executeQuery();
 				while (rs.next()) {
-					db.getSchema().setComment(rs.getString("schema_comment"));
+					db.getSchema().setComments(rs.getString("schema_comment"));
 					break;
 				}
 			} catch (SQLException sqlException) {
@@ -245,28 +246,29 @@ public class DatabaseService {
 		if (schemaMetaModel != null && schemaMetaModel.hasExtension()) {
 
 			ModelExtension modelExtension = schemaMetaModel.getModelExtension();
-			config.setDescription(modelExtension.getValue(null, null, MetaModelKeywords.COMMENTS));
+			config.setDescription(modelExtension.getValue(null, null, null, MetaModelKeywords.COMMENTS));
 
 			// done in three passes:
 			// 1: create any new tables
 			// 2: add/mod columns
 			// 3: connect
 
-			for (String tableName : modelExtension.getTables()) {
+			for (String tableName : modelExtension.getTables(db.getSchema().getName())) {
 				Table table;
 
-				String remoteCatalog = modelExtension.getValue(tableName, null, MetaModelKeywords.REMOTE_CATALOG);
-				String remoteSchema = modelExtension.getValue(tableName, null, MetaModelKeywords.REMOTE_SCHEMA);
+				String remoteCatalog = modelExtension.getValue(db.getSchema().getName(), tableName, null, MetaModelKeywords.REMOTE_CATALOG);
+				String remoteSchema = modelExtension.getValue(db.getSchema().getName(), tableName, null, MetaModelKeywords.REMOTE_SCHEMA);
 
                 if (remoteSchema != null || remoteCatalog != null) {
                     // will add it if it doesn't already exist
-                    table = tableService.addRemoteTable(db, remoteCatalog, remoteSchema, tableName, db.getSchema().getName(), true);
+                	Schema remoteschema = new Schema(remoteSchema);
+                    table = tableService.addRemoteTable(db, remoteCatalog, remoteschema, tableName, db.getSchema().getName(), true);
                 } else {
     				table = db.getLocals().get(tableName);
 
     				if (table == null) {
-    					table = new LogicalTable(db, db.getCatalog().getName(), db.getSchema().getName(), tableName,
-    							modelExtension.getValue(tableName, null, MetaModelKeywords.COMMENTS));
+    					table = new LogicalTable(db, db.getCatalog().getName(), db.getSchema(), tableName,
+    							modelExtension.getValue(db.getSchema().getName(), tableName, null, MetaModelKeywords.COMMENTS));
     					db.getTablesMap().put(table.getName(), table);
     				}
                 }
@@ -275,11 +277,11 @@ public class DatabaseService {
 			}
 
 			// then tie the tables together
-			for (String tableName : modelExtension.getTables()) {
+			for (String tableName : modelExtension.getTables(db.getSchema().getName())) {
 				Table table;
 
-				String remoteCatalog = modelExtension.getValue(tableName, null, MetaModelKeywords.REMOTE_CATALOG);
-				String remoteSchema = modelExtension.getValue(tableName, null, MetaModelKeywords.REMOTE_SCHEMA);
+				String remoteCatalog = modelExtension.getValue(db.getSchema().getName(), tableName, null, MetaModelKeywords.REMOTE_CATALOG);
+				String remoteSchema = modelExtension.getValue(db.getSchema().getName(), tableName, null, MetaModelKeywords.REMOTE_SCHEMA);
 				
 				if (remoteCatalog != null || remoteSchema != null) {
 					table = db.getRemoteTablesMap().get(db.getRemoteTableKey(remoteCatalog,

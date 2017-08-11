@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.schemaspy.model.Database;
 import org.schemaspy.model.ImpliedForeignKeyConstraint;
+import org.schemaspy.model.Schema;
 import org.schemaspy.model.Table;
 import org.schemaspy.model.TableColumn;
 import org.schemaspy.util.CaseInsensitiveMap;
@@ -21,13 +22,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DbAnalyzerTest {
     private String catalog;
-    private String schema;
+    private Schema schema;
     private Database database;
 
     @Before
     public void setUp() throws Exception {
         catalog = "test";
-        schema = "dbo";
+        schema = new Schema("dbo");
         database = Mockito.mock(Database.class);
     }
 

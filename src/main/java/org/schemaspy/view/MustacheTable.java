@@ -1,5 +1,7 @@
 package org.schemaspy.view;
 
+import java.util.Map;
+
 import org.schemaspy.model.Table;
 
 /**
@@ -38,4 +40,10 @@ public class MustacheTable {
     public void setDiagramName(String diagramName) {
         this.diagramName = diagramName;
     }
+
+    public Map<String, String> getAttributes()
+    {
+    	return table.getAttributes();
+    }
+
 }

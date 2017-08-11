@@ -35,7 +35,7 @@ public class LogicalRemoteTable extends RemoteTable {
      * @param baseSchema
      * @throws SQLException
      */
-    public LogicalRemoteTable(Database db, String catalog, String schema, String name, String baseSchema) throws SQLException {
+    public LogicalRemoteTable(Database db, String catalog, Schema schema, String name, String baseSchema) throws SQLException {
         super(db, catalog, schema, name, baseSchema);
     }
 

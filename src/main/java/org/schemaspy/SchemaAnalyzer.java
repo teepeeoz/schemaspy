@@ -188,7 +188,8 @@ public class SchemaAnalyzer {
             String dbName = config.getDb();
 
             String catalog = commandLineArguments.getCatalog();
-            String metaModelExtensionClassName = commandLineArguments.getMetaModelPath();
+            String metaModelExtensionClassPath = commandLineArguments.getMetaModelPath();
+            String metaModelExtensionClassName = commandLineArguments.getMetaModelClass();
 
             DatabaseMetaData meta = sqlService.connect(config);
 
@@ -201,7 +202,8 @@ public class SchemaAnalyzer {
             if(catalog == null)
             	catalog = meta.getConnection().getCatalog();
             
-            SchemaMetaModel schemaMeta = config.getMeta() == null ? null : new SchemaMetaModel(config.getMeta(), metaModelExtensionClassName, dbName, schema);
+            SchemaMetaModel schemaMeta = config.getMeta() == null ? null : new SchemaMetaModel(config.getMeta(), 
+            		metaModelExtensionClassPath, metaModelExtensionClassName, dbName, schema);
             if (config.isHtmlGenerationEnabled()) {
                 new File(outputDir, "tables").mkdirs();
                 new File(outputDir, "diagrams/summary").mkdirs();
@@ -430,7 +432,7 @@ public class SchemaAnalyzer {
         progressListener.graphingSummaryProgressed();
 
         for (HtmlColumnsPage.ColumnInfo columnInfo : HtmlColumnsPage.getInstance().getColumnInfos().values()) {
-            HtmlColumnsPage.getInstance().write(db, tables, columnInfo, outputDir);
+       		HtmlColumnsPage.getInstance().write(db, tables, columnInfo, outputDir);
         }
 
         progressListener.graphingSummaryProgressed();

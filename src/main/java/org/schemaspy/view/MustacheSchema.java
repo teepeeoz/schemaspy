@@ -12,7 +12,7 @@ public class MustacheSchema {
 
     public MustacheSchema(Schema schema,String rootPath) {
         this.name = schema.getName();
-        this.comment = Markdown.toHtml(schema.getComment(), rootPath); 
+        this.comment = Markdown.toHtml(schema.getComments(), rootPath); 
     }
 
     public String getName() {

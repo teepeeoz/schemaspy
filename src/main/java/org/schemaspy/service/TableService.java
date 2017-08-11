@@ -7,6 +7,7 @@ import org.schemaspy.model.ForeignKey;
 import org.schemaspy.model.ForeignKeyConstraint;
 import org.schemaspy.model.LogicalRemoteTable;
 import org.schemaspy.model.RemoteTable;
+import org.schemaspy.model.Schema;
 import org.schemaspy.model.Table;
 import org.schemaspy.model.TableColumn;
 import org.schemaspy.model.TableIndex;
@@ -64,7 +65,7 @@ public class TableService {
 
 		synchronized (Table.class) {
 			try {
-				rs = db.getMetaData().getColumns(table.getCatalog(), table.getSchema(), table.getName(), "%");
+				rs = db.getMetaData().getColumns(table.getCatalog(), table.getSchema().getName(), table.getName(), "%");
 
 				while (rs.next())
 					addColumn(table, rs);
@@ -227,7 +228,7 @@ public class TableService {
 
 		try {
 			// get our foreign keys that reference other tables' primary keys
-			rs = db.getMetaData().getImportedKeys(table.getCatalog(), table.getSchema(), table.getName());
+			rs = db.getMetaData().getImportedKeys(table.getCatalog(), table.getSchema().getName(), table.getName());
 			ArrayList<ForeignKey> importedKeys = new ArrayList<>();
 
 			while (rs.next()) {
@@ -262,7 +263,7 @@ public class TableService {
 				// get the foreign keys that reference our primary keys
 				// note that this can take an insane amount of time on Oracle
 				// (i.e. 30 secs per call)
-				rs = db.getMetaData().getExportedKeys(table.getCatalog(), table.getSchema(), table.getName());
+				rs = db.getMetaData().getExportedKeys(table.getCatalog(), table.getSchema().getName(), table.getName());
 				ArrayList<ForeignKey> exportedKeys = new ArrayList<>();
 
 				while (rs.next()) {
@@ -275,10 +276,11 @@ public class TableService {
 
 				for (ForeignKey exportedKey : exportedKeys) {
 					String otherCatalog = exportedKey.getFKTABLE_CAT();
-					String otherSchema = exportedKey.getFKTABLE_SCHEM();
+					Schema otherSchema = new Schema(exportedKey.getFKTABLE_SCHEM());
+					
 					if (!String.valueOf(table.getSchema()).equals(String.valueOf(otherSchema))
 							|| !String.valueOf(table.getCatalog()).equals(String.valueOf(otherCatalog))) {
-						addRemoteTable(db, otherCatalog, otherSchema, exportedKey.getFKTABLE_NAME(), table.getSchema(),
+						addRemoteTable(db, otherCatalog, otherSchema, exportedKey.getFKTABLE_NAME(), table.getSchema().getName(),
 								false);
 					}
 				}
@@ -303,7 +305,7 @@ public class TableService {
 
 		try {
 			// get remote table's FKs that reference PKs in our schema
-			rs = db.getMetaData().getImportedKeys(remoteTable.getCatalog(), remoteTable.getSchema(),
+			rs = db.getMetaData().getImportedKeys(remoteTable.getCatalog(), remoteTable.getSchema().getName(),
 					remoteTable.getName());
 
 			while (rs.next()) {
@@ -355,7 +357,7 @@ public class TableService {
 
 		Pattern include = Config.getInstance().getTableInclusions();
 		Pattern exclude = Config.getInstance().getTableExclusions();
-
+		
 		if (!include.matcher(pkTableName).matches() || exclude.matcher(pkTableName).matches()) {
 			if (fineEnabled)
 				LOGGER.fine("Ignoring " + table.getFullName(db.getName(), pkCatalog, pkSchema, pkTableName)
@@ -389,7 +391,8 @@ public class TableService {
 				if (fineEnabled)
 					LOGGER.fine(
 							"Adding remote table " + table.getFullName(db.getName(), pkCatalog, pkSchema, pkTableName));
-				parentTable = addRemoteTable(db, pkCatalog, pkSchema, pkTableName, baseContainer, false);
+				Schema pkschema = new Schema(pkSchema);
+				parentTable = addRemoteTable(db, pkCatalog, pkschema, pkTableName, baseContainer, false);
 			}
 
 			if (parentTable != null) {
@@ -526,9 +529,9 @@ public class TableService {
 		}
 	}
 
-	public Table addRemoteTable(Database db, String remoteCatalog, String remoteSchema, String remoteTableName,
+	public Table addRemoteTable(Database db, String remoteCatalog, Schema remoteSchema, String remoteTableName,
 			String baseContainer, boolean logical) throws SQLException {
-		String fullName = db.getRemoteTableKey(remoteCatalog, remoteSchema, remoteTableName);
+		String fullName = db.getRemoteTableKey(remoteCatalog, remoteSchema.getName(), remoteTableName);
 		RemoteTable remoteTable = (RemoteTable) db.getRemoteTablesMap().get(fullName);
 		if (remoteTable == null) {
 			if (fineEnabled)
@@ -571,7 +574,10 @@ public class TableService {
 					if (fk.getRemoteCatalog() != null || fk.getRemoteSchema() != null) {
 						try {
 							// adds if doesn't exist
-							parent = addRemoteTable(db, fk.getRemoteCatalog(), fk.getRemoteSchema(), fk.getTableName(),
+							
+							Schema remoteSchema = new Schema(fk.getRemoteSchema());
+
+							parent = addRemoteTable(db, fk.getRemoteCatalog(), remoteSchema, fk.getTableName(),
 									table.getContainer(), true);
 						} catch (SQLException exc) {
 							parent = null;
@@ -630,27 +636,29 @@ public class TableService {
 		if (modelExtension == null)
 			return;
 
-		for (String columnName : modelExtension.getColumns(table.getName())) {
+		for (String columnName : modelExtension.getColumns(table.getSchema().getName(), table.getName())) {
 			TableColumn col = table.getColumn(columnName);
 
 			if (col != null) {
 				// go thru the new foreign key defs and associate them with our
 				// columns
-				String foreignKeys = modelExtension.getValue(table.getName(), columnName, "foreignKeys");
+				String foreignKeys = modelExtension.getValue(table.getSchema().getName(), table.getName(), columnName, "foreignKeys");
 				if (foreignKeys != null) {
 					String[] listKeys = foreignKeys.split(",");
 					for (String foreignKey : listKeys) {
 						Table parent;
 
-						String fk_ColumnName = modelExtension.getValue(table.getName(), columnName, "foreignKey.columnName");
-						String fk_TableName = modelExtension.getValue(table.getName(), columnName, "foreignKey.tableName");
-						String fk_RemoteSchema = modelExtension.getValue(table.getName(), columnName, "foreignKey.remoteSchema");
-						String fk_RemoteCatalog = modelExtension.getValue(table.getName(), columnName, "foreignKey.remoteCatalog");
+						String fk_ColumnName = modelExtension.getValue(table.getSchema().getName(), table.getName(), columnName, "foreignKey.columnName");
+						String fk_TableName = modelExtension.getValue(table.getSchema().getName(), table.getName(), columnName, "foreignKey.tableName");
+						String fk_RemoteSchema = modelExtension.getValue(table.getSchema().getName(), table.getName(), columnName, "foreignKey.remoteSchema");
+						String fk_RemoteCatalog = modelExtension.getValue(table.getSchema().getName(), table.getName(), columnName, "foreignKey.remoteCatalog");
+						
+						Schema remoteSchema = new Schema(fk_RemoteSchema);
 						
 						if (fk_RemoteCatalog != null || fk_RemoteSchema != null) {
 							try {
 								// adds if doesn't exist
-								parent = addRemoteTable(db, fk_RemoteCatalog, fk_RemoteSchema,
+								parent = addRemoteTable(db, fk_RemoteCatalog, remoteSchema,
 										fk_TableName, table.getContainer(), true);
 							} catch (SQLException exc) {
 								parent = null;
@@ -720,7 +728,7 @@ public class TableService {
 		ResultSet rs = null;
 
 		try {
-			rs = db.getMetaData().getIndexInfo(table.getCatalog(), table.getSchema(), table.getName(), false, true);
+			rs = db.getMetaData().getIndexInfo(table.getCatalog(), table.getSchema().getName(), table.getName(), false, true);
 
 			while (rs.next()) {
 				if (rs.getShort("TYPE") != DatabaseMetaData.tableIndexStatistic)
@@ -813,7 +821,7 @@ public class TableService {
 			if (fineEnabled)
 				LOGGER.fine("Querying primary keys for " + table.getFullName());
 
-			rs = db.getMetaData().getPrimaryKeys(table.getCatalog(), table.getSchema(), table.getName());
+			rs = db.getMetaData().getPrimaryKeys(table.getCatalog(), table.getSchema().getName(), table.getName());
 
 			while (rs.next())
 				setPrimaryColumn(table, rs);

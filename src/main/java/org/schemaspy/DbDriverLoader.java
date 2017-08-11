@@ -121,6 +121,8 @@ public class DbDriverLoader {
             loadAdditionalJarsForDriver(driverPath, classpath);
         }
 
+		logger.fine("Driver path: "+ driverPath);
+		logger.fine("Driver class: "+ driverClass);
 
         ClassLoader loader = getDriverClassLoader(classpath);
         Driver driver = null;
